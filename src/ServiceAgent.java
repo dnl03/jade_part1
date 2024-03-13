@@ -21,9 +21,19 @@ public class ServiceAgent extends Agent {
 		ServiceDescription sd2 = new ServiceDescription();
 		sd2.setType("answers");
 		sd2.setName("dictionary");
+
+		//TODO: [ZAD1] Add My Service Desc
+		ServiceDescription sd3 = new ServiceDescription();
+		sd3.setType("answers");
+		sd3.setName("my_dict");
+
 		//add them all
 		dfad.addServices(sd1);
 		dfad.addServices(sd2);
+
+		//TODO: [ZAD1] Add Service DESC to Agent
+		dfad.addServices(sd3);
+
 		try {
 			DFService.register(this,dfad);
 		} catch (FIPAException ex) {
@@ -32,6 +42,9 @@ public class ServiceAgent extends Agent {
 		
 		addBehaviour(new WordnetCyclicBehaviour(this));
 		addBehaviour(new DictionaryCyclicBehaviour(this));
+
+		//TODO: [ZAD1] Register My Behaviour Class
+		addBehaviour(new MyDictonaryCyclicBehaviour(this));
 		//doDelete();
 	}
 	protected void takeDown() {
@@ -142,6 +155,45 @@ class DictionaryCyclicBehaviour extends CyclicBehaviour
 			try
 			{
 				response = agent.makeRequest("english", content);
+			}
+			catch (NumberFormatException ex)
+			{
+				response = ex.getMessage();
+			}
+			reply.setContent(response);
+			agent.send(reply);
+		}
+	}
+}
+
+//TODO: [ZAD1] Add My Dict Behaviour
+class MyDictonaryCyclicBehaviour extends CyclicBehaviour
+{
+	ServiceAgent agent;
+	public MyDictonaryCyclicBehaviour(ServiceAgent agent)
+	{
+		this.agent = agent;
+	}
+	public void action()
+	{
+		//TODO: [ZAD1] Ontology field name
+		MessageTemplate template = MessageTemplate.MatchOntology("my_dict");
+		ACLMessage message = agent.receive(template);
+		if (message == null)
+		{
+			block();
+		}
+		else
+		{
+			//process the incoming message
+			String content = message.getContent();
+			ACLMessage reply = message.createReply();
+			reply.setPerformative(ACLMessage.INFORM);
+			String response = "";
+			try
+			{
+				//TODO: [ZAD1] option_value from dict on dict website
+				response = agent.makeRequest("fd-pol-ita", content);
 			}
 			catch (NumberFormatException ex)
 			{
