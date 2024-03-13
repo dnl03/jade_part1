@@ -20,7 +20,8 @@
   <target name="run" description="create agents" >
     <java fork="true" classpath="jade/lib/jade.jar;build" classname="jade.Boot">
       <arg value="-gui" />
-      <arg value="UserAgent:jadelab1.MyAgent;ServiceAgent:jadelab1.ServiceAgent" />
+      <!-- TODO: [ZAD2] Add New Service Agent to the run args -->
+      <arg value="UserAgent:jadelab1.MyAgent;NewServiceAgent:jadelab1.NewServiceAgent;ServiceAgent:jadelab1.ServiceAgent" />
     </java>
   </target>
 </project>
