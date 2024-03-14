@@ -10,28 +10,24 @@ import java.io.*;
 
 public class ServiceAgent extends Agent {
 	protected void setup () {
+		// TODO: [ZAD3] <Step2>: Add only one service (all_dict_service)
 		//services registration at DF
 		DFAgentDescription dfad = new DFAgentDescription();
 		dfad.setName(getAID());
 		//service no 1
 		ServiceDescription sd1 = new ServiceDescription();
-		sd1.setType("answers");
-		sd1.setName("wordnet");
-		//service no 2
-		ServiceDescription sd2 = new ServiceDescription();
-		sd2.setType("answers");
-		sd2.setName("dictionary");
-		//add them all
+		sd1.setType("all_dict_service");
+		sd1.setName("all_dict_service");
 		dfad.addServices(sd1);
-		dfad.addServices(sd2);
+
 		try {
 			DFService.register(this,dfad);
 		} catch (FIPAException ex) {
 			ex.printStackTrace();
 		}
-		
-		addBehaviour(new WordnetCyclicBehaviour(this));
-		addBehaviour(new DictionaryCyclicBehaviour(this));
+
+		// TODO: [ZAD3] <Step3>: Add only one Behaviour
+		addBehaviour(new AllDictCyclicBehaviour(this));
 		//doDelete();
 	}
 	protected void takeDown() {
@@ -81,17 +77,19 @@ public class ServiceAgent extends Agent {
 	}
 }
 
-class WordnetCyclicBehaviour extends CyclicBehaviour
+// TODO: [ZAD3] <Step4>: Add Bechaviour class named AllDictCycleBehaviour
+class AllDictCyclicBehaviour extends CyclicBehaviour
 {
 	ServiceAgent agent;
-	public WordnetCyclicBehaviour(ServiceAgent agent)
+	public AllDictCyclicBehaviour(ServiceAgent agent)
 	{
 		this.agent = agent;
 	}
 	public void action()
 	{
-		MessageTemplate template = MessageTemplate.MatchOntology("wordnet");
-		ACLMessage message = agent.receive(template);
+		// TODO: [ZAD3] <Step5>: Remove mathcing by Ontology
+		// MessageTemplate template = MessageTemplate.MatchOntology("wordnet");
+		ACLMessage message = agent.receive(); //TODO: removed (template) from args
 		if (message == null)
 		{
 			block();
@@ -100,48 +98,15 @@ class WordnetCyclicBehaviour extends CyclicBehaviour
 		{
 			//process the incoming message
 			String content = message.getContent();
+			// TODO: [ZAD3] <Step6>: Get Ontology from message
+			String dictName = message.getOntology();
 			ACLMessage reply = message.createReply();
 			reply.setPerformative(ACLMessage.INFORM);
 			String response = "";
 			try
 			{
-				response = agent.makeRequest("wn",content);
-			}
-			catch (NumberFormatException ex)
-			{
-				response = ex.getMessage();
-			}
-			reply.setContent(response);
-			agent.send(reply);
-		}
-	}
-}
-
-class DictionaryCyclicBehaviour extends CyclicBehaviour
-{
-	ServiceAgent agent;
-	public DictionaryCyclicBehaviour(ServiceAgent agent)
-	{
-		this.agent = agent;
-	}
-	public void action()
-	{
-		MessageTemplate template = MessageTemplate.MatchOntology("dictionary");
-		ACLMessage message = agent.receive(template);
-		if (message == null)
-		{
-			block();
-		}
-		else
-		{
-			//process the incoming message
-			String content = message.getContent();
-			ACLMessage reply = message.createReply();
-			reply.setPerformative(ACLMessage.INFORM);
-			String response = "";
-			try
-			{
-				response = agent.makeRequest("english", content);
+				// TODO: [ZAD3] <Step7>: Send request with dictName
+				response = agent.makeRequest(dictName,content);
 			}
 			catch (NumberFormatException ex)
 			{

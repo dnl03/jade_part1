@@ -54,7 +54,8 @@ class MyCyclicBehaviour extends CyclicBehaviour {
 				//I cannot answer but I will search for someone who can
 				DFAgentDescription dfad = new DFAgentDescription();
 				ServiceDescription sd = new ServiceDescription();
-				sd.setName(ontology);
+				// TODO: [ZAD3] <Step1>: Change Service searching by UserAgent ("all_dict_service"), not by ontology
+				sd.setName("all_dict_service");
 				dfad.addServices(sd);
 				try
 				{
