@@ -1,5 +1,8 @@
 package jadelab1;
 
+//TODO: [ZAD4], <step1> Import HashMap
+import java.util.HashMap;
+
 import jade.core.*;
 import jade.core.behaviours.*;
 import jade.lang.acl.*;
@@ -10,6 +13,8 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class MyAgent extends Agent {
+	//TODO: [ZAD4], <step1> Define HashMap for storage sent messages
+	private HashMap<String, String> sent_messages = new HashMap<>();
 	protected void setup () {
 		displayResponse("Hello, I am " + getAID().getLocalName());
 		addBehaviour(new MyCyclicBehaviour(this));
@@ -33,6 +38,15 @@ public class MyAgent extends Agent {
 		tp.setContentType("text/html");
 		tp.setEditable(false);
 		tp.setText(html);
+	}
+	// TODO: [ZAD4] <step2> Add setter and getter to private hash map
+	public void add_to_hashmap(String id, String content)
+	{
+		this.sent_messages.put(id, content);
+	}
+	public String get_from_hashmap(String id)
+	{
+		return this.sent_messages.get(id);
 	}
 }
 
@@ -62,12 +76,23 @@ class MyCyclicBehaviour extends CyclicBehaviour {
 					if (result.length == 0) myAgent.displayResponse("No service has been found ...");
 					else
 					{
+						// TODO: [ZAD4] <step3> Create Unique ID
+						String msg_id = String.valueOf(System.currentTimeMillis());
+
 						String foundAgent = result[0].getName().getLocalName();
 						myAgent.displayResponse("Agent " + foundAgent + " is a service provider. Sending message to " + foundAgent);
 						ACLMessage forward = new ACLMessage(ACLMessage.REQUEST);
 						forward.addReceiver(new AID(foundAgent, AID.ISLOCALNAME));
+
+
+						// TODO: [ZAD4] <step4> Set unique_id on attr 'replay-with'
+						forward.setReplyWith(msg_id);
+
 						forward.setContent(content);
 						forward.setOntology(ontology);
+
+						// TODO [ZAD4] <step5> Add msg_id and word to hash map
+						myAgent.add_to_hashmap(msg_id, content);
 						myAgent.send(forward);
 					}
 				}
@@ -79,7 +104,15 @@ class MyCyclicBehaviour extends CyclicBehaviour {
 			}
 			else
 			{	//when it is an answer
-				myAgent.displayHtmlResponse(content);
+				//TODO: [ZAD4] Receiving Messages, and recognize word by unique ID
+				String replay_with = message.getInReplyTo();
+				String sent_word = myAgent.get_from_hashmap(replay_with);
+				if (sent_word != null) {
+					myAgent.displayHtmlResponse("<h1>ID-Request: " + replay_with + "</h1><h3>Send: " + sent_word + "</h3> <h3>Received: <h3><hr>" + content);
+				}
+				else {
+					myAgent.displayResponse("Unknow msg id: " + replay_with);
+				}
 			}
 		}
 	}
